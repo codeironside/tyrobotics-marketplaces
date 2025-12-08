@@ -1,0 +1,44 @@
+{
+  "name": "tyrobotics-marketplaces",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "_moduleAliases": {
+    "@CORE": "./src/CORE",
+    "@api": "./API",
+    "@app": "./APP"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "cross-env NODE_ENV=development nodemon -r module-alias/register ./src/APP/appService/index.ts",
+    "uat": "cross-env NODE_ENV=uat node -r module-alias/register ./dist/server.js",
+    "start": "cross-env NODE_ENV=production node -r module-alias/register ./dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "module-alias": "^2.2.3",
+    "mongoose": "^9.0.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/module-alias": "^2.0.4",
+    "@types/node": "^24.10.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
