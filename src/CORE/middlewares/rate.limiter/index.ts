@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiResponse } from "../../utils/apiresponse";
-import { Logger } from "CORE/utils/logger";
+import { Logger } from "../../utils/logger";
 
 interface RateLimitOptions {
   windowMs: number;

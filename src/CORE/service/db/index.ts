@@ -8,6 +8,7 @@ export class Database {
       await mongoose.connect(config.db.mongoUri);
       Logger.info("MongoDB Connected successfully");
     } catch (error) {
+      console.log(error)
       Logger.error("MongoDB connection error");
       throw error;
     }

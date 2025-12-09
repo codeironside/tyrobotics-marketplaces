@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { Logger } from "CORE/utils/logger";
+import { Logger } from "../../utils/logger";
 
 export class RequestLogger {
   /**

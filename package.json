@@ -9,6 +9,7 @@
     "@app": "./APP"
   },
   "scripts": {
+    "lint:swagger": "ts-node ./src/scripts/validate-swagger.ts",
     "build": "tsc",
     "dev": "cross-env NODE_ENV=development nodemon -r module-alias/register ./src/APP/appService/index.ts",
     "uat": "cross-env NODE_ENV=uat node -r module-alias/register ./dist/server.js",
