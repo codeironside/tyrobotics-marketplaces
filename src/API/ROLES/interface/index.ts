@@ -9,7 +9,7 @@ export interface IRole extends Document {
   description?: string;
   isActive: boolean;
 canSignUp:boolean;
-canLogin:boolean
+canLogin:boolean;
   createdAt: Date;
   updatedAt: Date;
 }

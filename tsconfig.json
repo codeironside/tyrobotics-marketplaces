@@ -5,11 +5,11 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "ignoreDeprecations": "6.0",
-    "paths": {
-      "@core/*": ["src/CORE/*"],
-      "@api/*": ["src/APP/*"],
-      "@app/*": ["app/*"]
-    },
+    // "paths": {
+    //   "@core/*": ["src/CORE/*"],
+    //   "@api/*": ["src/APP/*"],
+    //   "@app/*": ["app/*"]
+    // },
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

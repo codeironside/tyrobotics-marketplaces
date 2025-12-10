@@ -3,17 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "_moduleAliases": {
-    "@CORE": "./src/CORE",
-    "@api": "./API",
-    "@app": "./APP"
-  },
+
   "scripts": {
     "lint:swagger": "ts-node ./src/scripts/validate-swagger.ts",
     "build": "tsc",
-    "dev": "cross-env NODE_ENV=development nodemon -r module-alias/register ./src/APP/appService/index.ts",
-    "uat": "cross-env NODE_ENV=uat node -r module-alias/register ./dist/server.js",
-    "start": "cross-env NODE_ENV=production node -r module-alias/register ./dist/server.js"
+    "dev": "cross-env NODE_ENV=development nodemon ./src/APP/appService/index.ts",
+    "uat": "cross-env NODE_ENV=uat node  ./dist/server.js",
+    "start": "cross-env NODE_ENV=production node  ./dist/server.js"
   },
   "keywords": [],
   "author": "",

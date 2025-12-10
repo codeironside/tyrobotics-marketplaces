@@ -1,12 +1,12 @@
 import { Request, Response, Router } from "express";
 import mongoose from "mongoose";
 import { ApiResponse } from "../../CORE/utils/apiresponse";
-
+import { roleRouter } from "../../API/ROLES/routes";
 const router = Router();
 
 /**
  * @swagger
- * /health:
+ * /heath:
  *   get:
  *     summary: Check system health and database connection
  *     tags: [Health]
@@ -54,5 +54,7 @@ router.get("/health", async (req: Request, res: Response) => {
 
   return ApiResponse.success(res, healthData, "System is healthy");
 });
+
+router.use("/roles", roleRouter);
 
 export default router;

@@ -26,7 +26,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./src/APP/AppRouter/index.ts"],
+  apis: ["./src/APP/AppRouter/index.ts", "./src/API/**/*.ts"],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -38,7 +38,7 @@ app.use(RequestLogger.log);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-
+console.log("api version",API_VERSION)
 
 app.use(API_VERSION,RateLimiter.api({
     windowMs: 15 * 60 * 1000,
