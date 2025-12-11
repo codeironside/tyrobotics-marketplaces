@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import mongoose from "mongoose";
 import { ApiResponse } from "../../CORE/utils/apiresponse";
 import { roleRouter } from "../../API/ROLES/routes";
+import { socialRouter } from "../../API/SIGN.UP.METHODS/routes";
 const router = Router();
 
 /**
@@ -56,5 +57,6 @@ router.get("/health", async (req: Request, res: Response) => {
 });
 
 router.use("/roles", roleRouter);
+router.use("/socials", socialRouter);
 
 export default router;

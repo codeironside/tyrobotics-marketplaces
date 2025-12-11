@@ -1,15 +1,15 @@
-import { Document, Types } from 'mongoose';
-import{ Role} from "../../../../CORE/constants"
+import { Document, Types } from "mongoose";
+import { Role } from "../../../CORE/constants";
 
 export interface IRole extends Document {
   _id: Types.ObjectId;
   name: Role;
-  level: number; 
+  level: number;
   permissions: string[];
   description?: string;
   isActive: boolean;
-canSignUp:boolean;
-canLogin:boolean;
+  canSignUp: boolean;
+  canLogin: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
