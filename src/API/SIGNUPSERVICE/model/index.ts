@@ -12,7 +12,9 @@ import { Types } from "mongoose";
 import { VerificationToken } from "../../../API/OTP/model";
 import { generateJwtToken } from "../../../CORE/utils/jwttokengenerator/indet";
 import { VerificationTokenModel } from "../../../API/OTP/model/schema";
-import { UserModel } from "src/API/AUTH/model/schema";
+import { UserModel } from "../../../API/AUTH/model/schema";
+import notificationDispatcher from "../../../CORE/service/notifications";
+import { WELCOME_MESSAGE } from "../../../CORE/constants";
 export class SignupService {
   static async initiateSocialSignup(
     provider: string,
@@ -54,7 +56,7 @@ export class SignupService {
     req: any
   ): Promise<{
     user: any;
-    token: string;
+    token: any;
     requiresProfileCompletion: boolean;
   }> {
     const session = await mongoose.startSession();
@@ -137,6 +139,51 @@ export class SignupService {
       }
 
       await session.commitTransaction();
+      const result = await notificationDispatcher.send({
+        user: {
+          _id: user._id,
+          email: user.email,
+          phone: user.phone,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          preferences: {
+            emailNotifications: true,
+            pushNotifications: true,
+            smsNotifications: true,
+            whatsappNotifications: true,
+          },
+          pushTokens: ["firebase-token-123", "apns-token-456"],
+        },
+        notification: {
+          type: "welcome",
+          category: "account",
+          title: WELCOME_MESSAGE,
+          message: "Your payment of $100 was processed successfully",
+          data: {
+            amount: 100,
+            currency: "USD",
+            transactionId: "TX123456",
+            recipient: "Vendor Name",
+            date: new Date(),
+          },
+          metadata: {
+            priority: "high",
+            actionRequired: false,
+          },
+        },
+        channels: {
+          email: true,
+          sms: true,
+          whatsapp: true,
+          push: true,
+          inApp: true,
+        },
+        templateData: {
+          merchant: "Vendor Name",
+          reference: "REF123456",
+        },
+      });
+
 
       return {
         user: {
@@ -226,6 +273,7 @@ export class SignupService {
   static async completeEmailSignup(
     sessionToken: string,
     verificationCode: string,
+    roleNames:string,
     req: any
   ): Promise<{
     user: any;

@@ -5,15 +5,18 @@ const env = process.env.NODE_ENV || "development";
 const envPath = path.resolve(process.cwd(), `.env.${env}`);
 
 dotenv.config({ path: envPath });
-type termii = {
-  api_key: string,
-  senderId:string
-  
-}
+type Termii = {
+  api_key: string;
+  senderId: string;
+  base_url_sms: string;
+  base_url_whatsapp: string;
 
-type resend = {
-  api_key:string
-}
+};
+
+type Resend = {
+  api_key: string;
+  from: string;
+};
 type APP = {
   port: string;
   env: string;
@@ -57,17 +60,29 @@ type Config = {
   google: Google;
   facebook: Facebook;
   github: Github;
+  resend: Resend;
+  termii: Termii;
 };
 
 export const config: Config = {
   app: {
     port: process.env.PORT!,
     env: env,
-    app_secret:process.env.APP_SECRET!,
-    expires_in:process.env.EXPIRES_IN!,
+    app_secret: process.env.APP_SECRET!,
+    expires_in: process.env.EXPIRES_IN!,
   },
   db: {
     mongoUri: process.env.MONGO_URI!,
+  },
+  resend: {
+    api_key: process.env.RESEND_API_KEY!,
+    from: process.env.RESEND_FROM!,
+  },
+  termii: {
+    base_url_sms: process.env.BASE_URL_SMS!,
+    base_url_whatsapp: process.env.BASE_URL_WHATSAPP!,
+    senderId: process.env.TERMII_SENDER_ID || "",
+    api_key: process.env.TERMII_API_KEY!,
   },
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || " ",

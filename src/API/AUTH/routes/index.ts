@@ -1,131 +1,146 @@
-// import express from "express";
-// import { AuthController } from "../controllers/auth.controller";
-// import { SecurityMiddleware } from "../middleware/security.middleware";
+import express from "express";
 
-// const router = express.Router();
+import { SecurityMiddleware } from "../../../CORE/middlewares/security.middleware";
+import { initiateSocialSignup } from "../services/inititaite.social.sign.up";
+import { completeSocialSignup } from "../services/complete.social.sign.up";
+import { initiateEmailSignup } from "../services/initiate.email.sign.up";
+import { completeEmailSignup } from "../services/complete.email.sign.up";
+import { completeProfile } from "../services/complete.profile";
+import { verifyEmail } from "../services/verify.email";
+import { resendVerification } from "../services/resend.verification";
+import { checkEmailAvailability } from "../services/check.email.availability";
+import { checkUsernameAvailability } from "../services/check.user.name.available";
+import { socialLogin } from "../services/social.login";
+import { emailLogin } from "../services/email.log.in";
+import { logout } from "../services/logout";
+import { getProfile } from "../services/get.profille";
+import { updateProfile } from "../services/update.profile";
+import { changePassword } from "../services/change.password";
+import { getAuthMethods } from "../services/getAUthmethods";
+import { linkAuthMethod } from "../services/link.auth.method";
+import { unlinkAuthMethod } from "../services/unlink.auth.method";
+import { forgotPassword } from "../services/forgot.password";
+import { resetPassword } from "../services/reset.password";
 
-// router.get("/signup/roles", AuthController.getSignupRoles);
-// router.get(
-//   "/signup/required-fields/:roleNames",
-//   AuthController.getRequiredFields
-// );
+const authRouter = express.Router();
 
-// router.post(
-//   "/signup/social/initiate",
-//   SecurityMiddleware.validateProvider(),
-//   AuthController.initiateSocialSignup
-// );
 
-// router.post(
-//   "/signup/social/complete",
-//   SecurityMiddleware.validateSessionToken(),
-//   SecurityMiddleware.validateRoleSelection(),
-//   AuthController.completeSocialSignup
-// );
+authRouter.post(
+  "/signup/social/initiate",
+  SecurityMiddleware.validateProvider,
+  initiateSocialSignup
+);
 
-// router.post(
-//   "/signup/email/initiate",
-//   SecurityMiddleware.validateEmail(),
-//   SecurityMiddleware.validateRoleSelection(),
-//   AuthController.initiateEmailSignup
-// );
+authRouter.post(
+  "/signup/social/complete",
+  SecurityMiddleware.validateSessionToken(),
+  SecurityMiddleware.validateRoleSelection(),
+ completeSocialSignup
+);
 
-// router.post(
-//   "/signup/email/complete",
-//   SecurityMiddleware.validateSessionToken(),
-//   AuthController.completeEmailSignup
-// );
+authRouter.post(
+  "/signup/email/initiate",
+  SecurityMiddleware.validateEmail,
+  SecurityMiddleware.validateRoleSelection(),
+  initiateEmailSignup
+);
 
-// router.post(
-//   "/signup/profile/complete",
-//   SecurityMiddleware.authenticate(),
-//   AuthController.completeProfile
-// );
+authRouter.post(
+  "/signup/email/complete",
+  SecurityMiddleware.validateSessionToken(),
+  completeEmailSignup
+);
 
-// router.post("/signup/verify-email", AuthController.verifyEmail);
+authRouter.post(
+  "/signup/profile/complete",
+  SecurityMiddleware.authenticate(),
+  completeProfile
+);
 
-// router.post(
-//   "/signup/resend-verification",
-//   SecurityMiddleware.validateEmail(),
-//   AuthController.resendVerification
-// );
+authRouter.post("/signup/verify-email", verifyEmail);
 
-// router.post(
-//   "/signup/check-email",
-//   SecurityMiddleware.validateEmail(),
-//   AuthController.checkEmailAvailability
-// );
+authRouter.post(
+  "/signup/resend-verification",
+  SecurityMiddleware.validateEmail,
+  resendVerification
+);
 
-// router.post("/signup/check-username", AuthController.checkUsernameAvailability);
+authRouter.post(
+  "/signup/check-email",
+  SecurityMiddleware.validateEmail,
+  checkEmailAvailability
+);
 
-// router.post(
-//   "/login/social",
-//   SecurityMiddleware.validateProvider(),
-//   AuthController.socialLogin
-// );
+authRouter.post("/signup/check-username", checkUsernameAvailability);
 
-// router.post(
-//   "/login/email",
-//   SecurityMiddleware.validateEmail(),
-//   SecurityMiddleware.validatePassword(),
-//   AuthController.emailLogin
-// );
+authRouter.post(
+  "/login/social",
+  SecurityMiddleware.validateProvider,
+  socialLogin
+);
 
-// router.post(
-//   "/logout",
-//   SecurityMiddleware.authenticate(),
-//   AuthController.logout
-// );
+authRouter.post(
+  "/login/email",
+  SecurityMiddleware.validateEmail,
+  SecurityMiddleware.validatePassword(),
+  emailLogin
+);
 
-// router.get(
-//   "/profile",
-//   SecurityMiddleware.authenticate(),
-//   AuthController.getProfile
-// );
+authRouter.post(
+  "/logout",
+  SecurityMiddleware.authenticate(),
+  logout
+);
 
-// router.put(
-//   "/profile",
-//   SecurityMiddleware.authenticate(),
-//   AuthController.updateProfile
-// );
+authRouter.get(
+  "/profile",
+  SecurityMiddleware.authenticate(),
+  getProfile
+);
 
-// router.put(
-//   "/profile/password",
-//   SecurityMiddleware.authenticate(),
-//   SecurityMiddleware.validatePassword(),
-//   AuthController.changePassword
-// );
+authRouter.put(
+  "/profile",
+  SecurityMiddleware.authenticate(),
+  updateProfile
+);
 
-// router.get(
-//   "/auth-methods",
-//   SecurityMiddleware.authenticate(),
-//   AuthController.getAuthMethods
-// );
+authRouter.put(
+  "/profile/password",
+  SecurityMiddleware.authenticate(),
+  SecurityMiddleware.validatePassword(),
+  changePassword
+);
 
-// router.post(
-//   "/auth-methods/link",
-//   SecurityMiddleware.authenticate(),
-//   SecurityMiddleware.validateProvider(),
-//   AuthController.linkAuthMethod
-// );
+authRouter.get(
+  "/auth-methods",
+  SecurityMiddleware.authenticate(),
+  getAuthMethods
+);
 
-// router.delete(
-//   "/auth-methods/:methodId",
-//   SecurityMiddleware.authenticate(),
-//   AuthController.unlinkAuthMethod
-// );
+authRouter.post(
+  "/auth-methods/link",
+  SecurityMiddleware.authenticate,
+  SecurityMiddleware.validateProvider,
+  linkAuthMethod
+);
 
-// router.post(
-//   "/forgot-password",
-//   SecurityMiddleware.validateEmail(),
-//   AuthController.forgotPassword
-// );
+authRouter.delete(
+  "/auth-methods/:methodId",
+  SecurityMiddleware.authenticate(),
+  unlinkAuthMethod
+);
 
-// router.post(
-//   "/reset-password",
-//   SecurityMiddleware.validateResetToken(),
-//   SecurityMiddleware.validatePassword(),
-//   AuthController.resetPassword
-// );
+authRouter.post(
+  "/forgot-password",
+  SecurityMiddleware.validateEmail,
+  forgotPassword
+);
 
-// export default router;
+authRouter.post(
+  "/reset-password",
+  SecurityMiddleware.validateResetToken(),
+  SecurityMiddleware.validatePassword(),
+  resetPassword
+);
+
+export default authRouter;

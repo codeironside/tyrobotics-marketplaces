@@ -1,10 +1,10 @@
 import { Schema, model } from "mongoose";
-import type { FilterQuery} from "mongoose";
+import type { ClientSession } from "mongoose";
+
 import { IRole } from "../interface";
 import { Role } from "../../../CORE/constants";
 import { Logger } from "../../../CORE/utils/logger";
 import { AppError } from "../../../CORE/utils/errorhandler";
-import type { ClientSession } from "mongoose";
 import z from "zod";
 const createRoleSchema = z.object({
   name: z.nativeEnum(Role),
@@ -15,6 +15,7 @@ const createRoleSchema = z.object({
   canSignUp: z.boolean().default(true),
   canLogin: z.boolean().default(true),
 });
+type RoleFindFilter = Parameters<typeof RoleModel.find>[0];
 
 const roleSchema = new Schema<IRole>(
   {
@@ -168,11 +169,13 @@ export class Roles {
   }
 
   public static async find(
-    options: FilterQuery<IRole>,
-    session: ClientSession
+    options: RoleFindFilter,
+    session?: ClientSession
   ): Promise<IRole[]> {
     try {
-      return await RoleModel.find(options).exec();
+      const query = RoleModel.find(options);
+      if (session) query.session(session);
+      return await query.exec();
     } catch (error: unknown) {
       Logger.error(
         `Error finding roles - ${

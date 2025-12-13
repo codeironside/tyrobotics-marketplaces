@@ -6,7 +6,12 @@ import { Logger } from "../../utils/logger";
 import { ErrorHandler } from "../../utils/errorhandler";
 import { ApiResponse } from "../../utils/apiresponse";
 import { AppError } from "../../utils/errorhandler";
+import jwt from "jsonwebtoken";
+import { User } from "../../../API/AUTH/model";
+import { config } from "../../../CORE/utils/config";
+import { UserModel } from "../../../API/AUTH/model/schema";
 const signupRateLimit = rateLimit({
+  
   windowMs: 15 * 60 * 1000,
   max: 10,
   skipSuccessfulRequests: true,
@@ -36,7 +41,7 @@ const verificationRateLimit = rateLimit({
 });
 
 export class SecurityMiddleware {
-  static validateProvider(req: Request, res: Response, next: NextFunction) {
+  static async validateProvider(req: Request, res: Response, next: NextFunction) {
     try {
       const { provider } = req.body;
       const validProvider = await Socials.findByName(provider);
@@ -226,9 +231,9 @@ throw new AppError(400, "email is not valid")
       }
 
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+        const decoded = jwt.verify(token, config.app.app_secret) as any;
 
-        const user = await User.findById(decoded.userId).select(
+        const user = await UserModel.findById(decoded.userId).select(
           "email firstName lastName avatar isActive isEmailVerified roles authMethods"
         );
 
@@ -268,7 +273,7 @@ throw new AppError(400, "email is not valid")
 
         next();
       } catch (error) {
-        if (error.name === "TokenExpiredError") {
+        if (error === "TokenExpiredError") {
           return res.status(401).json({
             success: false,
             message: "Token expired",
