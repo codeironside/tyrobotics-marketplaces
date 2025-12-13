@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { Types, ClientSession } from "mongoose";
 import { UserModel } from './schema';
 import { IUser } from '../interface'; 
 import { AppError } from '../../../CORE/utils/errorhandler';
@@ -370,9 +370,12 @@ export class User {
     return await UserModel.findById(userId);
   }
 
-  static async findByEmail(email: string): Promise<IUser | null> {
-    return await UserModel.findOne({ email: email.toLowerCase() });
-  }
+  static async findByEmail(
+  email: string,
+  session?: ClientSession
+): Promise<IUser | null> {
+  return UserModel.findOne({ email: email.toLowerCase() }).session(session ?? null);
+}
 
   static async findBySocialProvider(
     provider: string,

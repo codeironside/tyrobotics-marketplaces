@@ -9,6 +9,8 @@ dotenv.config({ path: envPath });
 type APP = {
   port: string;
   env: string;
+  app_secret: string;
+  expires_in: string;
 };
 
 type DB = {
@@ -53,6 +55,8 @@ export const config: Config = {
   app: {
     port: process.env.PORT!,
     env: env,
+    app_secret:process.env.APP_SECRET!,
+    expires_in:process.env.EXPIRES_IN!,
   },
   db: {
     mongoUri: process.env.MONGO_URI!,

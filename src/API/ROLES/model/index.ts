@@ -1,8 +1,10 @@
 import { Schema, model } from "mongoose";
+import type { FilterQuery} from "mongoose";
 import { IRole } from "../interface";
 import { Role } from "../../../CORE/constants";
 import { Logger } from "../../../CORE/utils/logger";
 import { AppError } from "../../../CORE/utils/errorhandler";
+import type { ClientSession } from "mongoose";
 import z from "zod";
 const createRoleSchema = z.object({
   name: z.nativeEnum(Role),
@@ -68,7 +70,7 @@ export class Roles {
       Logger.info(`Role created successfully: ${role.name}`);
       return role;
     } catch (error: any) {
-      console.log(error)
+      console.log(error);
       Logger.error(`Error creating role: ${error.message}`);
       if (error.code === 11000) {
         throw new AppError(409, "Role already exists");
@@ -162,6 +164,22 @@ export class Roles {
       if (error instanceof AppError) throw error;
       Logger.error(`Error deleting role ${name}: ${error.message}`);
       throw new AppError(500, "Database error while deleting role");
+    }
+  }
+
+  public static async find(
+    options: FilterQuery<IRole>,
+    session: ClientSession
+  ): Promise<IRole[]> {
+    try {
+      return await RoleModel.find(options).exec();
+    } catch (error: unknown) {
+      Logger.error(
+        `Error finding roles - ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+      throw new AppError(500, "Database error while fetching roles");
     }
   }
 }

@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "es2016",
     "module": "commonjs",
-    "rootDir": "./src",
-    "baseUrl": "./src",
+    "rootDir": ".",
+    "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     // "paths": {
     //   "@core/*": ["src/CORE/*"],
