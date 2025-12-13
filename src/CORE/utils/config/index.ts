@@ -5,7 +5,15 @@ const env = process.env.NODE_ENV || "development";
 const envPath = path.resolve(process.cwd(), `.env.${env}`);
 
 dotenv.config({ path: envPath });
+type termii = {
+  api_key: string,
+  senderId:string
+  
+}
 
+type resend = {
+  api_key:string
+}
 type APP = {
   port: string;
   env: string;

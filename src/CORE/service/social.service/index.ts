@@ -2,9 +2,21 @@ import axios from "axios";
 import { Types } from "mongoose";
 import { AppError } from "../../utils/errorhandler";
 import { config } from "../../utils/config";
-import { ISocialProfile } from "../../../API/AUTH/interface";
+type SocialProfile = {
+  provider: string;
+  providerId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
+  photo: string;
+  emailVerified: boolean;
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt: Date;
+};
 export class SocialAuthService {
-  static async verifyGoogleToken(code: string): Promise<ISocialProfile> {
+  static async verifyGoogleToken(code: string): Promise<SocialProfile> {
     const params = new URLSearchParams();
     params.append("code", code);
     params.append("client_id", config.google.clientId);
@@ -12,13 +24,9 @@ export class SocialAuthService {
     params.append("redirect_uri", config.google.google_redirect_url);
     params.append("grant_type", "authorization_code");
 
-    const tokenResponse = await axios.post(
-      config.google.tokenUrl,
-      params,
-      {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }
-    );
+    const tokenResponse = await axios.post(config.google.tokenUrl, params, {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    });
 
     const userResponse = await axios.get(config.google.userInfoUrl, {
       headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` },
@@ -39,7 +47,7 @@ export class SocialAuthService {
     };
   }
 
-  static async verifyFacebookToken(code: string): Promise<ISocialProfile> {
+  static async verifyFacebookToken(code: string): Promise<SocialProfile> {
     const params = new URLSearchParams();
     params.append("code", code);
     params.append("client_id", config.facebook.clientId);
@@ -71,20 +79,16 @@ export class SocialAuthService {
     };
   }
 
-  static async verifyGithubToken(code: string): Promise<ISocialProfile> {
+  static async verifyGithubToken(code: string): Promise<SocialProfile> {
     const params = new URLSearchParams();
     params.append("code", code);
     params.append("client_id", config.github.clientId);
     params.append("client_secret", config.github.clientSecret);
     params.append("redirect_uri", config.github.github_redirect_url);
 
-    const tokenResponse = await axios.post(
-      config.github.tokenUrl,
-      params,
-      {
-        headers: { Accept: "application/json" },
-      }
-    );
+    const tokenResponse = await axios.post(config.github.tokenUrl, params, {
+      headers: { Accept: "application/json" },
+    });
 
     const userResponse = await axios.get(config.github.userInfoUrl, {
       headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` },
@@ -152,7 +156,7 @@ export class SocialAuthService {
   static async verifySocialToken(
     provider: string,
     code: string
-  ): Promise<ISocialProfile> {
+  ): Promise<SocialProfile> {
     switch (provider) {
       case "google":
         return await this.verifyGoogleToken(code);

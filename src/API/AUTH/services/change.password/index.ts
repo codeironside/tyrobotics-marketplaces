@@ -8,7 +8,7 @@ import { Request, Response, NextFunction } from "express";
 import mongoose, { Types } from "mongoose";
 import jwt from "jsonwebtoken";
 import { SignupService } from "../../../SIGNUPSERVICE/model";
-import { SocialAuthService } from "../../../../CORE/service/sociel.service";
+import { SocialAuthService } from "../../../../CORE/service/social.service";
 import { User } from "../../../AUTH/model";
 import { Roles } from "../../../ROLES/model";
 import { AppError } from "../../../../CORE/utils/errorhandler";
@@ -35,8 +35,6 @@ export const changePassword = async (
 
     Logger.info(`Password changed - User: ${user.email}, IP: ${ipAddress}`);
     await ApiResponse.success(res, {}, CHANGE_PASSWORD, 202);
-
-  
   } catch (error) {
     Logger.error(
       `Password change failed - User: ${(req as any).user?.email}, IP: ${

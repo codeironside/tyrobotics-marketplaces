@@ -1,4 +1,4 @@
-import { SocialAuthService } from "../../../CORE/service/sociel.service";
+import { SocialAuthService } from "../../../CORE/service/social.service";
 import { AppError } from "../../../CORE/utils/errorhandler";
 import { SignupSession } from "./schema";
 import { ISignUpSessionResponse } from "../interface";
@@ -601,8 +601,6 @@ export class SignupService {
       email: user.email,
       roles: user.roles,
     });
-
-    
 
     return {
       user: {
