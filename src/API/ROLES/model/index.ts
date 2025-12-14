@@ -60,7 +60,7 @@ const roleSchema = new Schema<IRole>(
 roleSchema.index({ level: 1 });
 roleSchema.index({ name: 1 });
 
-const RoleModel = model<IRole>("Role", roleSchema);
+export const RoleModel = model<IRole>("Role", roleSchema);
 
 export class Roles {
   public static async create(data: Partial<IRole>): Promise<IRole> {

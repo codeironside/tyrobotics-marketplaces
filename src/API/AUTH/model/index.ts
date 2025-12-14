@@ -301,7 +301,6 @@ export class User {
       session.endSession();
     }
   }
-
   static async markSignupCompleted(
     userId: Types.ObjectId,
     completedStep: string
@@ -331,7 +330,15 @@ export class User {
       updateData.isProfileComplete = true;
     }
 
-    return await UserModel.findByIdAndUpdate(userId, updateData, { new: true });
+    const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    });
+
+    if (!updatedUser) {
+      throw new AppError(404, "User not found");
+    }
+
+    return updatedUser;
   }
 
   private static async checkAndCompleteProfile(
@@ -407,7 +414,7 @@ export class User {
       expiresAt?: Date;
     }
   ): Promise<IUser> {
-    return await UserModel.findByIdAndUpdate(
+    const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       {
         $push: {
@@ -421,6 +428,13 @@ export class User {
       },
       { new: true }
     );
+
+    // Check if the user was found and updated
+    if (!updatedUser) {
+      throw new AppError(404, "User not found");
+    }
+
+    return updatedUser;
   }
 
   static async updateLastLogin(userId: Types.ObjectId): Promise<void> {
@@ -462,7 +476,7 @@ export class User {
   }
 
   static async verifyEmail(userId: Types.ObjectId): Promise<IUser> {
-    return await UserModel.findByIdAndUpdate(
+    const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       {
         isEmailVerified: true,
@@ -470,10 +484,17 @@ export class User {
       },
       { new: true }
     );
+
+    // Check if the user was found and updated
+    if (!updatedUser) {
+      throw new AppError(404, "User not found");
+    }
+
+    return updatedUser;
   }
 
   static async verifyPhone(userId: Types.ObjectId): Promise<IUser> {
-    return await UserModel.findByIdAndUpdate(
+    const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       {
         isPhoneVerified: true,
@@ -481,6 +502,13 @@ export class User {
       },
       { new: true }
     );
+
+
+    if (!updatedUser) {
+      throw new AppError(404, "User not found");
+    }
+
+    return updatedUser;
   }
 
   static async updateRoles(
@@ -492,7 +520,7 @@ export class User {
       canLogin: boolean;
     }>
   ): Promise<IUser> {
-    return await UserModel.findByIdAndUpdate(
+   const updatedRoles = await UserModel.findByIdAndUpdate(
       userId,
       {
         roles: newRoles.map((role) => ({
@@ -505,11 +533,15 @@ export class User {
         })),
       },
       { new: true }
-    );
+   );
+    if (!updatedRoles) {
+      throw new AppError(404, "Roles not found")
+    }
+    return updatedRoles
   }
 
   static async deactivateAccount(userId: Types.ObjectId): Promise<IUser> {
-    return await UserModel.findByIdAndUpdate(
+    const deactivateAccount=  await UserModel.findByIdAndUpdate(
       userId,
       {
         isActive: false,
@@ -517,10 +549,15 @@ export class User {
       },
       { new: true }
     );
+    if (!deactivateAccount) {
+      throw new AppError(404, "Account not found")
+
+    }
+    return deactivateAccount
   }
 
   static async reactivateAccount(userId: Types.ObjectId): Promise<IUser> {
-    return await UserModel.findByIdAndUpdate(
+    const reactivateAccount= await UserModel.findByIdAndUpdate(
       userId,
       {
         isActive: true,
@@ -528,6 +565,10 @@ export class User {
       },
       { new: true }
     );
+    if (!reactivateAccount) {
+      throw new AppError(404,"Account not found")
+    }
+    return reactivateAccount
   }
 
   static async generateTwoFactorSecret(

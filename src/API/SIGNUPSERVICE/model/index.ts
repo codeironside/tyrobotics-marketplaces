@@ -6,7 +6,7 @@ import crypto from "crypto";
 import mongoose from "mongoose";
 import { User } from "../../../API/AUTH/model";
 import bcrypt from "bcryptjs";
-import { Roles } from "../../../API/ROLES/model";
+import { Roles, RoleModel } from "../../../API/ROLES/model";
 import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
 import { VerificationToken } from "../../../API/OTP/model";
@@ -15,6 +15,8 @@ import { VerificationTokenModel } from "../../../API/OTP/model/schema";
 import { UserModel } from "../../../API/AUTH/model/schema";
 import notificationDispatcher from "../../../CORE/service/notifications";
 import { WELCOME_MESSAGE } from "../../../CORE/constants";
+import { Role } from "../../../CORE/constants";
+
 export class SignupService {
   static async initiateSocialSignup(
     provider: string,
@@ -52,7 +54,7 @@ export class SignupService {
 
   static async completeSocialSignupWithRoles(
     sessionToken: string,
-    roleNames: string[],
+    roleNames: Role[],
     req: any
   ): Promise<{
     user: any;
@@ -73,14 +75,11 @@ export class SignupService {
         throw new AppError(400, "Invalid or expired session");
       }
 
-      const selectedRoles = await Roles.find(
-        {
-          name: { $in: roleNames },
-          canSignUp: true,
-          isActive: true,
-        },
-        session
-      );
+      const selectedRoles = await RoleModel.find({
+        name: { $in: roleNames }, // roleNames now correctly contains 'Role' enum values
+        canSignUp: true,
+        isActive: true,
+      }).session(session);
 
       if (selectedRoles.length !== roleNames.length) {
         const validRoleNames = selectedRoles.map((role) => role.name);
@@ -139,6 +138,8 @@ export class SignupService {
       }
 
       await session.commitTransaction();
+
+      // Assuming this notification dispatch works as intended
       const result = await notificationDispatcher.send({
         user: {
           _id: user._id,
@@ -184,7 +185,6 @@ export class SignupService {
         },
       });
 
-
       return {
         user: {
           id: user._id,
@@ -207,73 +207,78 @@ export class SignupService {
       session.endSession();
     }
   }
-
   static async initiateEmailSignup(
     email: string,
     password: string,
-    roleNames: string[],
+    roleNames: Role[],
     req: any
   ): Promise<{ sessionToken: string }> {
-    const existingUser = await User.findByEmail(email);
+    const session = await mongoose.startSession();
 
-    if (existingUser) {
-      throw new AppError(409, "Email already registered");
-    }
+    try {
+      const existingUser = await User.findByEmail(email);
 
-    const passwordHash = await bcrypt.hash(password, 12);
-    const sessionToken = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
-    const verificationCode = crypto.randomInt(100000, 999999).toString();
+      if (existingUser) {
+        throw new AppError(409, "Email already registered");
+      }
 
-    const selectedRoles = await Roles.find({
-      name: { $in: roleNames },
-      canSignUp: true,
-      isActive: true,
-    });
+      const passwordHash = await bcrypt.hash(password, 12);
+      const sessionToken = crypto.randomBytes(32).toString("hex");
+      const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+      const verificationCode = crypto.randomInt(100000, 999999).toString();
 
-    if (selectedRoles.length !== roleNames.length) {
-      const validRoleNames = selectedRoles.map((role) => role.name);
-      const invalidRoles = roleNames.filter(
-        (name) => !validRoleNames.includes(name)
-      );
-      throw new AppError(
-        400,
-        `Invalid roles for signup: ${invalidRoles.join(", ")}`
-      );
-    }
+      const selectedRoles = await RoleModel.find({
+        name: { $in: roleNames },
+        canSignUp: true,
+        isActive: true,
+      }).session(session); // Pass session to the query
 
-    await SignupSession.create({
-      sessionToken,
-      provider: "email",
-      email: email.toLowerCase(),
-      profileData: {
+      if (selectedRoles.length !== roleNames.length) {
+        const validRoleNames = selectedRoles.map((role) => role.name);
+        const invalidRoles = roleNames.filter(
+          (name) => !validRoleNames.includes(name)
+        );
+        throw new AppError(
+          400,
+          `Invalid roles for signup: ${invalidRoles.join(", ")}`
+        );
+      }
+
+      await SignupSession.create({
+        sessionToken,
+        provider: "email",
         email: email.toLowerCase(),
-        passwordHash,
-        roleNames,
-        selectedRoles: selectedRoles.map((role) => ({
-          _id: role._id,
-          name: role.name,
-          level: role.level,
-          canLogin: role.canLogin,
-        })),
-      },
-      verificationCode,
-      expiresAt,
-      metadata: {
-        ipAddress: req.ip,
-        userAgent: req.headers["user-agent"],
-      },
-    });
+        profileData: {
+          email: email.toLowerCase(),
+          passwordHash,
+          roleNames,
+          selectedRoles: selectedRoles.map((role) => ({
+            _id: role._id,
+            name: role.name,
+            level: role.level,
+            canLogin: role.canLogin,
+          })),
+        },
+        verificationCode,
+        expiresAt,
+        metadata: {
+          ipAddress: req.ip,
+          userAgent: req.headers["user-agent"],
+        },
+      });
 
-    // await this.sendVerificationEmail(email, verificationCode);
-
-    return { sessionToken };
+      return { sessionToken };
+    } catch (error) {
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   static async completeEmailSignup(
     sessionToken: string,
     verificationCode: string,
-    roleNames:string,
+    roleNames: string,
     req: any
   ): Promise<{
     user: any;
@@ -329,15 +334,11 @@ export class SignupService {
 
       let token = null;
       if (canLogin && !requiresProfileCompletion) {
-        token = jwt.sign(
-          {
-            userId: user._id,
-            email: user.email,
-            roles: user.roles,
-          },
-          process.env.JWT_SECRET!,
-          { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
-        );
+        token = generateJwtToken({
+          userId: user._id.toString(),
+          email: user.email,
+          roles: user.roles,
+        });
       }
 
       await session.commitTransaction();
@@ -371,7 +372,7 @@ export class SignupService {
     req: any
   ): Promise<{
     user: any;
-    token: string;
+    token: string | null;
     signupCompleted: boolean;
   }> {
     const session = await mongoose.startSession();
@@ -387,34 +388,16 @@ export class SignupService {
 
       let token = null;
       if (canLogin && signupCompleted) {
-        token = jwt.sign(
-          {
-            userId: user._id,
-            email: user.email,
-            roles: user.roles,
-          },
-          process.env.JWT_SECRET,
-          { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
+        token = generateJwtToken({
+          userId: user._id.toString(),
+          email: user.email,
+          roles: user.roles,
+        });
 
         await User.updateLastLogin(user._id);
       }
 
-      await AuditLog.create(
-        [
-          {
-            userId: user._id,
-            action: "PROFILE_COMPLETED",
-            resource: "USER",
-            resourceId: user._id,
-            metadata: {
-              completedFields: Object.keys(profileData),
-              ip: req.ip,
-            },
-          },
-        ],
-        { session }
-      );
+      
 
       await session.commitTransaction();
 
@@ -645,7 +628,7 @@ export class SignupService {
 
     await User.updateLastLogin(user._id);
     const token = generateJwtToken({
-      userId: user._id,
+      userId: user._id.toString(),
       email: user.email,
       roles: user.roles,
     });

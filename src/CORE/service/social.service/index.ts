@@ -103,11 +103,16 @@ export class SocialAuthService {
 
     const primaryEmail = emailResponse.data.find((email: any) => email.primary);
 
+    const fullName = userResponse.data.name || userResponse.data.login;
+    const [firstName, lastName] = fullName.split(" "); // Simple split, consider improving for edge cases
+
     return {
       provider: "github",
       providerId: userResponse.data.id.toString(),
       email: primaryEmail?.email || userResponse.data.email,
-      displayName: userResponse.data.name || userResponse.data.login,
+      firstName: firstName || "", // Use empty string if not available
+      lastName: lastName || "", // Use empty string if not available
+      displayName: fullName,
       photo: userResponse.data.avatar_url,
       emailVerified: primaryEmail?.verified || false,
       accessToken: tokenResponse.data.access_token,

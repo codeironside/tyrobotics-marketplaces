@@ -1,4 +1,4 @@
-import { EMAIL_AVAILAIBLE } from "src/CORE/constants";
+import { EMAIL_AVAILAIBLE } from "../../../../CORE/constants";
 import { Request, Response, NextFunction } from "express";
 import mongoose, { Types } from "mongoose";
 import jwt from "jsonwebtoken";

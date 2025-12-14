@@ -4,7 +4,9 @@ export type Theme = "light" | "dark" | "auto";
 
 export type SignupStep = "initial" | "profile" | "verification" | "completed";
 
-export interface IUser {
+
+export interface IUser extends Document {
+  _id: Types.ObjectId;
   email: string;
   username?: string;
   firstName?: string;
@@ -16,17 +18,14 @@ export interface IUser {
   country?: string;
   timezone?: string;
   language?: string;
-
   canLogin: boolean;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
   isActive: boolean;
   isProfileComplete: boolean;
-
   lastLoginAt?: Date;
   emailVerifiedAt?: Date;
   phoneVerifiedAt?: Date;
-
   roles: Array<{
     roleId: Types.ObjectId;
     name: string;
@@ -36,7 +35,6 @@ export interface IUser {
     isActive: boolean;
     canLogin: boolean;
   }>;
-
   authMethods: Array<{
     provider: string;
     providerId: string;
@@ -47,7 +45,6 @@ export interface IUser {
     lastUsedAt: Date;
     isPrimary: boolean;
   }>;
-
   security: {
     passwordHash?: string;
     passwordChangedAt?: Date;
@@ -58,7 +55,6 @@ export interface IUser {
     lockUntil?: Date;
     lastPasswordChange?: Date;
   };
-
   metadata: {
     ipAddress?: string;
     userAgent?: string;
@@ -70,7 +66,6 @@ export interface IUser {
     utmMedium?: string;
     utmCampaign?: string;
   };
-
   preferences: {
     emailNotifications: boolean;
     pushNotifications: boolean;
@@ -78,7 +73,6 @@ export interface IUser {
     newsletterSubscription: boolean;
     theme: Theme;
   };
-
   profileCompletion: {
     personalInfo: boolean;
     contactInfo: boolean;
@@ -86,7 +80,6 @@ export interface IUser {
     requiredFields: string[];
     completedAt?: Date;
   };
-
   signupStatus: {
     step: "initial" | "profile" | "verification" | "completed";
     completedSteps: string[];
@@ -94,11 +87,8 @@ export interface IUser {
     startedAt: Date;
     completedAt?: Date;
   };
-
   deletedAt?: Date;
-
   createdAt: Date;
   updatedAt: Date;
 }
-
 export type UserDoc = HydratedDocument<IUser>;

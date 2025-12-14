@@ -5,6 +5,7 @@ const signupSessionSchema = new Schema(
     sessionToken: { type: String, required: true, unique: true, index: true },
     provider: { type: String, required: true },
     email: { type: String, required: true, lowercase: true },
+    verificationCode: { type: String },
     profileData: { type: Schema.Types.Mixed, required: true },
     expiresAt: { type: Date, required: true, index: true, expires: 1800 },
     metadata: { ipAddress: String, userAgent: String },
